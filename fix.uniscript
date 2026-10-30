@@ -1,0 +1,50 @@
+// ==UserScript==
+// @name         X - Kolom Reply Langsung Muncul (PC Style)
+// @namespace    http://tampermonkey.net/
+// @version      1.3
+// @description  Membuat kolom reply langsung muncul seperti di PC
+// @author       Grok
+// @match        https://x.com/*
+// @match        https://twitter.com/*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function bukaReplyBox() {
+        // Cari tombol Reply
+        const replyButtons = document.querySelectorAll('[data-testid="reply"], [aria-label="Reply"], [data-testid="tweetButtonInline"]');
+
+        replyButtons.forEach(btn => {
+            // Hanya klik kalau kolom reply belum terbuka
+            const isOpen = document.querySelector('[data-testid="tweetTextarea_0"]');
+            if (!isOpen) {
+                btn.click();
+            }
+        });
+
+        // Paksa tampilan textarea lebih besar (mirip PC)
+        const textarea = document.querySelector('[data-testid="tweetTextarea_0"]');
+        if (textarea) {
+            textarea.style.minHeight = "140px";
+            textarea.style.fontSize = "17px";
+            textarea.style.padding = "12px";
+        }
+    }
+
+    // Jalankan saat halaman dimuat
+    setTimeout(bukaReplyBox, 1200);
+
+    // Pantau perubahan halaman (saat pindah tweet)
+    const observer = new MutationObserver(() => {
+        setTimeout(bukaReplyBox, 700);
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+})();
